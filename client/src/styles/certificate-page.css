@@ -1,0 +1,627 @@
+/* ============================================================
+   CERTIFICATE DETAIL PAGE STYLES
+   Prefix: cdp-  (Certificate Detail Page)
+
+   Design tokens:
+     Primary blue   : #3B5BDB
+     Background     : #F8F9FA
+     Card           : #FFFFFF
+     Border radius  : 12 – 16px
+     Shadow         : 0 2px 12px rgba(0,0,0,0.08)
+     Font           : Inter
+   ============================================================ */
+
+/* ── Page ──────────────────────────────────────────────────── */
+.cdp-page {
+  min-height: 100vh;
+  background: #F8F9FA;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Top bar ───────────────────────────────────────────────── */
+.cdp-topbar {
+  background: #ffffff;
+  border-bottom: 1px solid #E9ECEF;
+  padding: 0 32px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+.cdp-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  transition: color 0.15s;
+}
+.cdp-back-btn:hover { color: #212529; }
+
+/* Desktop action buttons (right side of top bar) */
+.cdp-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cdp-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: #ffffff;
+  border: 1.5px solid #DEE2E6;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.cdp-action-btn:hover:not(:disabled) {
+  border-color: #3B5BDB;
+  color: #3B5BDB;
+}
+.cdp-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Scrollable content area ───────────────────────────────── */
+.cdp-content {
+  flex: 1;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 32px 48px;
+}
+
+/* Mobile email button — hidden on desktop */
+.cdp-mobile-email-btn {
+  display: none;
+  width: 100%;
+  padding: 14px;
+  border: 1.5px solid #3B5BDB;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #3B5BDB;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 16px;
+  transition: background 0.15s;
+}
+.cdp-mobile-email-btn:hover { background: #EDF2FF; }
+
+/* ── Main two-column row ───────────────────────────────────── */
+.cdp-main-row {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+/* Left panel — certificate preview; takes all remaining width */
+.cdp-left {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* Right panel — sidebar cards; fixed width */
+.cdp-right {
+  width: 320px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Certificate card (white box wrapping the viewer) ───────── */
+.cdp-cert-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.cdp-cert-card-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #F1F3F5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.cdp-cert-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0;
+}
+
+/* ── PDF Viewer ────────────────────────────────────────────── */
+.cdp-viewer-wrap {
+  background: #E9ECEF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  min-height: 460px;
+  position: relative;
+}
+
+/* Maintains A4 landscape ratio (842 ÷ 595 ≈ 1.415) */
+.cdp-viewer-frame {
+  width: 100%;
+  aspect-ratio: 842 / 595;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  display: block;
+  background: #fff;
+}
+
+/* Loading state */
+.cdp-viewer-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 380px;
+  color: #868E96;
+  font-size: 14px;
+}
+
+.cdp-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #DEE2E6;
+  border-top-color: #3B5BDB;
+  border-radius: 50%;
+  animation: cdp-spin 0.75s linear infinite;
+}
+
+@keyframes cdp-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Fullscreen — native browser fullscreen API */
+.cdp-viewer-wrap:fullscreen {
+  padding: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cdp-viewer-wrap:fullscreen .cdp-viewer-frame {
+  width: auto;
+  height: 100vh;
+  aspect-ratio: auto;
+  box-shadow: none;
+  border-radius: 0;
+}
+/* Safari prefix */
+.cdp-viewer-wrap:-webkit-full-screen {
+  padding: 0;
+  background: #000;
+}
+.cdp-viewer-wrap:-webkit-full-screen .cdp-viewer-frame {
+  width: auto;
+  height: 100vh;
+  aspect-ratio: auto;
+}
+
+/* ── Common card shell ─────────────────────────────────────── */
+.cdp-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+/* ── Issuance Details card ─────────────────────────────────── */
+.cdp-issuance-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0 0 16px;
+}
+
+.cdp-issuance-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.cdp-issuance-row:last-child { margin-bottom: 0; }
+
+.cdp-issuance-icon {
+  width: 36px;
+  height: 36px;
+  background: #EDF2FF;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #3B5BDB;
+}
+
+.cdp-issuance-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #ADB5BD;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 3px;
+}
+
+.cdp-issuance-value {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #212529;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Organisation info card ────────────────────────────────── */
+.cdp-org-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cdp-org-icon {
+  width: 40px;
+  height: 40px;
+  background: #EDF2FF;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #3B5BDB;
+}
+
+.cdp-org-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0;
+}
+
+.cdp-org-desc {
+  font-size: 13px;
+  color: #3B5BDB;
+  line-height: 1.65;
+  margin: 0;
+}
+
+/* ── Verified card ─────────────────────────────────────────── */
+.cdp-verified-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0;
+}
+
+.cdp-verified-icon-wrap {
+  width: 56px;
+  height: 56px;
+  background: #2F9E44;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  color: #ffffff;
+}
+
+.cdp-verified-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2F9E44;
+  margin: 0 0 6px;
+}
+
+.cdp-verified-sub {
+  font-size: 13px;
+  color: #868E96;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Share card ────────────────────────────────────────────── */
+.cdp-share-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  color: #3B5BDB;
+}
+
+.cdp-share-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0;
+}
+
+.cdp-share-sub {
+  font-size: 13px;
+  color: #868E96;
+  margin: 0 0 16px;
+  line-height: 1.55;
+}
+
+.cdp-share-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cdp-share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.15s, transform 0.1s;
+}
+.cdp-share-btn:hover  { opacity: 0.88; }
+.cdp-share-btn:active { transform: scale(0.98); }
+
+.cdp-share-btn--linkedin { background: #0077B5; color: #fff; }
+.cdp-share-btn--twitter  { background: #1DA1F2; color: #fff; }
+.cdp-share-btn--facebook { background: #1877F2; color: #fff; }
+
+/* ── Credential Details card ───────────────────────────────── */
+.cdp-details-card {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 24px 28px;
+  border-left: 4px solid #3B5BDB;
+}
+
+.cdp-details-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #212529;
+  margin: 0 0 20px;
+}
+
+/* 4-column grid on desktop, 2-column on mobile */
+.cdp-details-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  row-gap: 20px;
+  column-gap: 16px;
+}
+
+/* First 4 cells get a bottom divider separating the two rows */
+.cdp-details-cell:nth-child(-n+4) {
+  border-bottom: 1px solid #F1F3F5;
+  padding-bottom: 20px;
+}
+
+.cdp-details-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: #ADB5BD;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 5px;
+}
+
+.cdp-details-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #212529;
+  margin: 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+/* ── HTML preview viewer (replaces the PDF iframe on CertificatePage) ───── */
+
+/*
+  cdp-html-viewer-wrap:
+    The fullscreen target — receives requestFullscreen() from the Fullscreen API.
+    In normal mode it's transparent; in fullscreen it becomes a dark backdrop.
+*/
+.cdp-html-viewer-wrap {
+  background: #E9ECEF;
+  border-radius: 0 0 16px 16px;
+  overflow: hidden;
+}
+
+/* Fullscreen — standard + webkit prefix */
+.cdp-html-viewer-wrap:fullscreen {
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.cdp-html-viewer-wrap:-webkit-full-screen {
+  background: #1a1a1a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/*
+  cdp-preview-scroll:
+    Scrollable viewport for the certificate at any zoom level.
+    Centers the cert horizontally when it's smaller than the viewport;
+    adds scroll bars when it overflows (e.g. at 175% or 200% zoom).
+*/
+.cdp-preview-scroll {
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 28px;
+  min-height: 400px;
+}
+
+/* In fullscreen the scroll fills the entire screen */
+.cdp-html-viewer-wrap:fullscreen .cdp-preview-scroll,
+.cdp-html-viewer-wrap:-webkit-full-screen .cdp-preview-scroll {
+  width: 100%;
+  height: 100%;
+  min-height: unset;
+  padding: 24px;
+  align-items: center;  /* vertically centre the cert when it fits on screen */
+  box-sizing: border-box;
+}
+
+/* ── PreviewControls bar (pc- prefix) ───────────────────────── */
+.pc-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: nowrap;
+}
+
+.pc-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: #F8F9FA;
+  border: 1.5px solid #DEE2E6;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.pc-btn:hover:not(:disabled) {
+  border-color: #3B5BDB;
+  color:         #3B5BDB;
+  background:    #EDF2FF;
+}
+.pc-btn:disabled {
+  opacity:       0.35;
+  cursor:        not-allowed;
+}
+
+/* Current zoom percentage badge between the controls */
+.pc-level {
+  padding: 5px 10px;
+  background: #E9ECEF;
+  border: 1.5px solid #DEE2E6;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+  min-width: 46px;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ── Responsive ────────────────────────────────────────────── */
+@media (max-width: 1023px) {
+  .cdp-right   { width: 280px; }
+  .cdp-content { padding: 20px 24px 36px; }
+  .cdp-topbar  { padding: 0 24px; }
+}
+
+@media (max-width: 767px) {
+  /* Top bar */
+  .cdp-topbar         { padding: 0 16px; height: 52px; }
+  .cdp-topbar-actions { display: none; }        /* Desktop actions hidden */
+  .cdp-back-btn span  { font-size: 13px; }
+
+  /* Collapse PreviewControls text labels on mobile — icons only */
+  .pc-btn span { display: none; }
+  .pc-btn      { padding: 6px 8px; }
+
+  /* Reduce preview padding on mobile */
+  .cdp-preview-scroll { padding: 16px; min-height: 280px; }
+
+  /* Content */
+  .cdp-content { padding: 16px 16px 32px; }
+
+  /* Mobile email button visible */
+  .cdp-mobile-email-btn { display: flex; }
+
+  /* Stack vertically */
+  .cdp-main-row {
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  /* Full width */
+  .cdp-left,
+  .cdp-right { width: 100%; }
+
+  /* Viewer */
+  .cdp-viewer-wrap {
+    padding: 16px;
+    min-height: unset;
+  }
+
+  /* Details: 2 columns */
+  .cdp-details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  /* On 2-col grid, first 2 cells (row 1) get border */
+  .cdp-details-cell:nth-child(-n+4) {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .cdp-details-cell:nth-child(-n+2) {
+    border-bottom: 1px solid #F1F3F5;
+    padding-bottom: 16px;
+  }
+  /* Also add border after each pair that starts a row (cells 3,4 — row 2) */
+  .cdp-details-cell:nth-child(3),
+  .cdp-details-cell:nth-child(4) {
+    border-bottom: 1px solid #F1F3F5;
+    padding-bottom: 16px;
+  }
+  .cdp-details-cell:nth-child(5),
+  .cdp-details-cell:nth-child(6) {
+    border-bottom: 1px solid #F1F3F5;
+    padding-bottom: 16px;
+  }
+}

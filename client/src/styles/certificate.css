@@ -1,0 +1,469 @@
+/* ============================================================
+   CERTIFICATE PREVIEW PAGE STYLES
+   All classes prefixed  cp-  to avoid conflicts with other pages.
+
+   Layout overview:
+     .cp-page          → full-viewport dark wrapper (flex column)
+     .cp-nav           → sticky top navbar
+     .cp-viewer        → scrollable area below navbar
+     .cp-cert          → the 1050×743 px white certificate paper
+   ============================================================ */
+
+
+/* ══════════════════════════════════════════════════════════
+   PAGE WRAPPER
+   Full-viewport dark background, flex column so the navbar
+   and viewer stack vertically and fill the screen.
+   overflow-x: hidden prevents unwanted horizontal page scroll.
+   ══════════════════════════════════════════════════════════ */
+.cp-page {
+  min-height: 100vh;
+  background: #1a1a1a;          /* Dark charcoal — makes the white certificate pop */
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow-x: hidden;           /* No horizontal scroll at page level             */
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   STICKY NAVBAR
+   Dark bar at the top.  Three sections:
+     LEFT   → back button  (min-width keeps layout stable)
+     CENTER → title        (absolute so it's always centred)
+     RIGHT  → zoom controls
+   ══════════════════════════════════════════════════════════ */
+.cp-nav {
+  height: 56px;
+  background: #2a2a2a;
+  border-bottom: 1px solid #3a3a3a;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  flex-shrink: 0;               /* Don't let the nav shrink if the page is short */
+  position: sticky;             /* Stays at the top while the viewer scrolls */
+  top: 0;
+  z-index: 10;                  /* Sits above certificate shadow */
+}
+
+/* ── Back button (left) ───────────────────────────────────── */
+.cp-nav-back {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #adb5bd;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.18s;
+  padding: 0;
+  min-width: 155px;             /* Keeps center title truly centred */
+  white-space: nowrap;
+}
+.cp-nav-back:hover { color: #ffffff; }
+
+/* ── Page title (centre) ─────────────────────────────────── */
+.cp-nav-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  position: absolute;           /* Taken out of flex flow so it's always dead-centre */
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;         /* Clicks pass through to elements behind it */
+  white-space: nowrap;
+}
+
+/* ── Zoom controls (right) ───────────────────────────────── */
+.cp-nav-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 155px;             /* Mirror of back button min-width → keeps title centred */
+  justify-content: flex-end;
+}
+
+/* Individual zoom buttons (Zoom Out, Reset, Zoom In) */
+.cp-zoom-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: #333333;
+  border: 1px solid #444444;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #cccccc;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+  line-height: 1;
+}
+.cp-zoom-btn:hover:not(:disabled) {
+  background: #444444;
+  color: #ffffff;
+  border-color: #555555;
+}
+.cp-zoom-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* Zoom percentage pill — blue badge showing the current zoom level */
+.cp-zoom-level {
+  min-width: 46px;
+  text-align: center;
+  padding: 6px 10px;
+  background: #3B5BDB;          /* EICTA brand blue */
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  font-family: inherit;
+  line-height: 1;
+  letter-spacing: 0.3px;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   SCROLLABLE VIEWER AREA
+   Fills all remaining viewport height below the navbar.
+   overflow-y: auto  → vertical scrollbars when cert overflows.
+   overflow-x: hidden → no horizontal scrollbar at default zoom.
+   ══════════════════════════════════════════════════════════ */
+.cp-viewer {
+  flex: 1;                      /* Expands to fill space below the navbar */
+  overflow-y: auto;             /* Vertical scroll when zoomed in tall   */
+  overflow-x: hidden;           /* Suppress horizontal page-level scroll  */
+  display: flex;
+  align-items: flex-start;      /* Top-align: header stays visible at any zoom */
+  justify-content: center;      /* Horizontally centre the certificate */
+  padding: 40px 24px 60px;      /* Breathing room around the certificate */
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   CERTIFICATE PAPER
+   Fixed landscape dimensions: 1050 × 743 px.
+   CSS transform: scale() in CertificatePreview.jsx handles zoom.
+   ══════════════════════════════════════════════════════════ */
+.cp-cert {
+  width:  1050px;
+  height: 743px;
+  background: #ffffff;
+  position: relative;
+  box-shadow: 0 6px 36px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Gold decorative border ─────────────────────────────────
+   inset: 10px → 10px gap from each edge → gold rectangle frame. */
+.cp-cert-border {
+  position: absolute;
+  inset: 10px;
+  border: 1.5px solid #C9A646;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Inner content column ───────────────────────────────────
+   z-index: 2 ensures content renders above the gold border.   */
+.cp-cert-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 44px 10px;
+  position: relative;
+  z-index: 2;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   LOGO ROW
+   justify-content: center clusters all three logo groups in the
+   horizontal centre as a compact unit.  gap handles inter-group
+   spacing; the vertical dividers sit between groups as flex children.
+   ══════════════════════════════════════════════════════════ */
+.cp-cert-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;      /* Compact centered cluster — not space-between */
+  gap: 0;                       /* Spacing handled by dividers + logo-left gap  */
+  margin-bottom: 6px;
+}
+
+/* ── Vertical divider between logo sections ─────────────── */
+.cp-logo-divider {
+  width: 1px;
+  height: 68px;
+  background: #cccccc;
+  flex-shrink: 0;
+  margin: 0 14px;               /* Tight horizontal breathing room               */
+}
+
+/* ── LEFT section: emblem + ministry text ─────────────────── */
+.cp-logo-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* No flex: 1 — natural width so cluster stays compact       */
+}
+
+/* Indian national emblem image */
+.cp-logo-emblem {
+  height: 66px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Container for both Hindi and English text blocks */
+.cp-meity-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+/* Hindi Devanagari script — small, italic, lighter */
+.cp-meity-hindi {
+  font-size: 7px;
+  font-style: italic;
+  color: #444444;
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* English ministry name — bold, uppercase, dark */
+.cp-meity-english {
+  font-size: 7px;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.45;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  margin: 0;
+}
+
+/* ── CENTER section: IIT Kanpur logo ─────────────────────── */
+.cp-logo-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* IIT Kanpur circular crest image */
+.cp-logo-iitk {
+  height: 68px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* ── RIGHT section: EICTA / TAG logo only ────────────────── */
+.cp-logo-right {
+  display: flex;
+  align-items: center;
+  /* No flex: 1 — natural width keeps cluster compact          */
+}
+
+/* EICTA / TAG consortium circular logo image */
+.cp-logo-tag {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   TITLE SECTION  (all centered)
+   ══════════════════════════════════════════════════════════ */
+
+/* "EICTA Consortium" heading — gold, bold */
+.cp-cert-consortium {
+  font-size: 21px;
+  font-weight: 800;
+  color: #C9A646;               /* Same gold as the border                     */
+  text-align: center;
+  letter-spacing: 0.4px;
+  margin: 0 0 2px;
+}
+
+/* "(A Joint Initiative…)" — smaller grey subtitle, slightly bolder */
+.cp-cert-consortium-sub {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #555555;
+  text-align: center;
+  margin: 0 0 4px;
+  font-family: 'Times New Roman', Times, serif;
+}
+
+/* "Certificate" — the centrepiece heading.
+   Large italic serif in gold. */
+.cp-cert-title {
+  font-size: 44px;
+  font-weight: 700;
+  font-style: italic;
+  color: #C9A646;
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  line-height: 1;
+  margin: 0 0 8px;
+  letter-spacing: 0.5px;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   BODY TEXT BLOCK
+   All lines centered, Times New Roman.
+   flex: 1 makes this section expand to fill available height
+   between the title and the bottom row.
+   ══════════════════════════════════════════════════════════ */
+.cp-cert-body {
+  text-align: center;
+  font-family: 'Times New Roman', Times, serif;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;      /* Vertically centre the text block in available space */
+  gap: 0;
+}
+
+/* Default paragraph — resets browser margin and sets base type */
+.cp-cert-body p {
+  margin: 0;
+  font-size: 15px;
+  color: #222222;
+  line-height: 1.6;
+}
+
+/* "Dr. / Mr. / Ms. [Name] of" line */
+.cp-cert-body .cp-recipient {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* "[College Name]" — bold via <strong> */
+.cp-cert-body .cp-college {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* "[Course Name]" — slightly larger for visual prominence */
+.cp-cert-body .cp-course {
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   BOTTOM ROW  (QR code left · Signature right)
+   ══════════════════════════════════════════════════════════ */
+.cp-cert-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+/* QR code + issue date stacked vertically */
+.cp-cert-qr-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+/* "Date of Issue: …" label below the QR code */
+.cp-cert-issue-date {
+  font-size: 11px;
+  color: #444444;
+  font-family: 'Times New Roman', Times, serif;
+  margin: 0;
+}
+
+/* Signature block: line + name + role, right-aligned */
+.cp-cert-sig-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+/* The decorative horizontal line above the professor's name */
+.cp-cert-sig-line {
+  width: 150px;
+  border-top: 1px solid #333333;
+  margin-bottom: 4px;
+}
+
+/* "Prof. B. V. Phani" */
+.cp-cert-prof {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  font-family: 'Times New Roman', Times, serif;
+  text-align: right;
+  margin: 0;
+}
+
+/* "Chief Investigator, E&ICT Academy, IIT Kanpur" */
+.cp-cert-prof-role {
+  font-size: 10.5px;
+  color: #444444;
+  font-family: 'Times New Roman', Times, serif;
+  text-align: right;
+  margin: 0;
+  line-height: 1.4;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   FOOTER STRIP
+   Light-grey band at the very bottom listing EICT Academy
+   partner institutions.
+   ══════════════════════════════════════════════════════════ */
+.cp-cert-footer-strip {
+  background: #f4f4f4;
+  border-top: 1px solid #dddddd;
+  padding: 5px 44px;
+  text-align: center;
+  font-size: 9.5px;
+  color: #666666;
+  font-family: 'Times New Roman', Times, serif;
+  flex-shrink: 0;
+  line-height: 1.5;
+}
+
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE ADJUSTMENTS
+   The certificate paper itself is fixed-size (transforms handle zoom).
+   Only the navbar UI elements adapt on small screens.
+   ══════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .cp-nav { padding: 0 12px; }
+
+  /* On mobile, hide button text labels — keep icons only */
+  .cp-nav-back span { display: none; }
+  .cp-zoom-btn span { display: none; }
+
+  .cp-viewer { padding: 20px 8px 40px; }
+}
+
+@media (max-width: 480px) {
+  .cp-nav-title { font-size: 13px; }
+}

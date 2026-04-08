@@ -1,0 +1,120 @@
+/* ============================================================
+   CERTIFICATE PDF PAGE STYLES
+   Prefix: cpdf-  (Certificate PDF Page)
+
+   This is the clean, distraction-free PDF viewer page that
+   opens when the user clicks "Download PDF" on the detail page.
+   Dark background to frame the white certificate.
+   ============================================================ */
+
+/* ── Page wrapper ───────────────────────────────────────────── */
+.cpdf-page {
+  min-height: 100vh;
+  background: #1e1e1e;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Top bar ────────────────────────────────────────────────── */
+.cpdf-topbar {
+  background: #252525;
+  border-bottom: 1px solid #333333;
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-shrink: 0;
+}
+
+/* Back button */
+.cpdf-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #CED4DA;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  transition: color 0.15s;
+}
+.cpdf-back-btn:hover { color: #ffffff; }
+
+/* Page title (centre) */
+.cpdf-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #868E96;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* Download button */
+.cpdf-download-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  background: #3B5BDB;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  white-space: nowrap;
+}
+.cpdf-download-btn:hover:not(:disabled) { background: #3451C7; }
+.cpdf-download-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── PDF viewer area ────────────────────────────────────────── */
+.cpdf-viewer-area {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 36px 24px;
+  overflow: auto;
+}
+
+/* Scope cdp-viewer-wrap inside the PDF page so it looks right on dark bg */
+.cpdf-viewer-area .cdp-viewer-wrap {
+  width: 100%;
+  max-width: 920px;
+  background: transparent;
+  padding: 0;
+  min-height: unset;
+  border-radius: 0;
+}
+
+.cpdf-viewer-area .cdp-viewer-frame {
+  border-radius: 4px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.65);
+}
+
+/* Tint the spinner and loading text for the dark background */
+.cpdf-viewer-area .cdp-viewer-loading {
+  color: #868E96;
+  height: 520px;
+}
+.cpdf-viewer-area .cdp-spinner {
+  border-color: #3a3a3a;
+  border-top-color: #5C7CFA;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 767px) {
+  .cpdf-topbar { padding: 0 16px; height: 52px; }
+  .cpdf-title  { display: none; }
+  .cpdf-viewer-area { padding: 16px 12px; }
+}

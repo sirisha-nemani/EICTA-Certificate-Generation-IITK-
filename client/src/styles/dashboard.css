@@ -1,0 +1,416 @@
+/* ============================================================
+   DASHBOARD STYLES  —  Light theme, matches IFACET design
+   All classes prefixed  db-  to avoid conflicts
+   ============================================================ */
+
+/* ── Page wrapper ── */
+.db-page {
+  min-height: 100vh;
+  background: #F0F2F5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #212529;
+}
+
+/* ══════════════════════════════════════════
+   NAVBAR  —  white bar spans full viewport
+   ══════════════════════════════════════════ */
+.db-nav {
+  background: #ffffff;
+  border-bottom: 1px solid #E9ECEF;
+  height: 72px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+/* Navbar inner — 85% of viewport, content centred inside full-width bar */
+.db-nav-inner {
+  width: 85%;
+  max-width: 1600px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Left brand */
+.db-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.db-nav-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.db-nav-logo-fallback {
+  font-size: 20px;
+  font-weight: 800;
+  color: #3B5BDB;
+  letter-spacing: 1.5px;
+}
+
+.db-nav-divider {
+  width: 1px;
+  height: 28px;
+  background: #DEE2E6;
+}
+
+.db-nav-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #212529;
+  line-height: 1.35;
+}
+
+/* Right side */
+.db-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.db-nav-user-info {
+  text-align: right;
+}
+
+.db-nav-user-label {
+  font-size: 12px;
+  color: #6C757D;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.db-nav-user-email {
+  font-size: 14px;
+  color: #212529;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.db-nav-logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: #ffffff;
+  border: 1.5px solid #DEE2E6;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.db-nav-logout-btn:hover {
+  border-color: #FA5252;
+  color: #C92A2A;
+  background: #FFF5F5;
+}
+
+/* Mobile nav logout — icon only */
+.db-nav-logout-icon-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #ffffff;
+  border: 1.5px solid #DEE2E6;
+  border-radius: 9px;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.db-nav-logout-icon-btn:hover {
+  border-color: #FA5252;
+  color: #C92A2A;
+  background: #FFF5F5;
+}
+
+/* ══════════════════════════════════════════
+   MAIN CONTENT
+   85% of the navbar's 85vw inner = ~72% of viewport
+   ══════════════════════════════════════════ */
+.db-main {
+  width: calc(85% * 0.70);   /* 70% of 85vw inner = 59.5vw */
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 44px 0 72px;
+}
+
+/* ── Back button ── */
+.db-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #495057;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+  margin-bottom: 26px;
+  transition: color 0.18s ease;
+}
+
+.db-back-btn:hover {
+  color: #212529;
+}
+
+/* ── Page header ── */
+.db-header {
+  margin-bottom: 32px;
+}
+
+.db-header-title {
+  font-size: 34px;
+  font-weight: 600;
+  color: #212529;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+
+.db-header-count {
+  font-size: 17px;
+  color: #6C757D;
+  font-weight: 400;
+}
+
+.db-header-count strong {
+  color: #3B5BDB;
+  font-weight: 600;
+}
+
+/* ── Credential list ── */
+.db-credential-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* ══════════════════════════════════════════
+   CREDENTIAL CARD
+   ══════════════════════════════════════════ */
+.db-card {
+  background: #ffffff;
+  border: 1.5px solid #E9ECEF;
+  border-radius: 16px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Subtle hover — light blue border + tiny lift */
+.db-card:hover {
+  border-color: #BAC8FF;
+  box-shadow: 0 4px 14px rgba(59, 91, 219, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Card left content */
+.db-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.db-card-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #212529;
+  margin-bottom: 8px;
+}
+
+.db-card-program {
+  font-size: 15px;
+  color: #3B5BDB;
+  font-weight: 400;
+  margin-bottom: 10px;
+  line-height: 1.45;
+}
+
+.db-card-program span {
+  color: #6C757D;
+  margin: 0 5px;
+}
+
+.db-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.db-card-meta-row {
+  font-size: 15px;
+  color: #212529;
+  line-height: 1.5;
+}
+
+.db-card-meta-row b {
+  font-weight: 600;
+  color: #212529;
+}
+
+.db-card-meta-link {
+  color: #3B5BDB;
+  text-decoration: none;
+  font-weight: 400;
+}
+
+.db-card-meta-link:hover {
+  text-decoration: underline;
+}
+
+/* Card right — desktop buttons */
+.db-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Preview button */
+.db-btn-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: #ffffff;
+  border: 1.5px solid #DEE2E6;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #212529;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  min-width: 120px;
+}
+
+.db-btn-preview:hover {
+  border-color: #3B5BDB;
+  color: #3B5BDB;
+  background: #EEF2FF;
+}
+
+/* PDF button */
+.db-btn-pdf {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  background: #3B5BDB;
+  border: none;
+  border-radius: 9px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.18s ease;
+  min-width: 120px;
+}
+
+.db-btn-pdf:hover {
+  background: #364FC7;
+}
+
+/* Mobile view certificate button — hidden on desktop */
+.db-btn-view-cert {
+  display: none;
+  width: 100%;
+  padding: 14px;
+  background: #3B5BDB;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 18px;
+  transition: background 0.18s ease;
+}
+
+.db-btn-view-cert:hover {
+  background: #364FC7;
+}
+
+/* ══════════════════════════════════════════
+   LOADING SPINNER
+   ══════════════════════════════════════════ */
+@keyframes db-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════ */
+
+/* Tablet */
+@media (max-width: 1023px) {
+  .db-nav-inner {
+    width: 92%;
+  }
+  .db-main {
+    width: 82%;
+  }
+  .db-header-title {
+    font-size: 28px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767px) {
+  .db-nav {
+    height: 60px;
+  }
+  .db-nav-inner {
+    width: 100%;
+    padding: 0 16px;
+    box-sizing: border-box;
+  }
+  .db-nav-title    { display: none; }
+  .db-nav-divider  { display: none; }
+  .db-nav-user-info { display: none; }
+  .db-nav-logout-btn { display: none; }
+  .db-nav-logout-icon-btn { display: flex; }
+
+  .db-main {
+    width: 100%;
+    padding: 22px 16px 52px;
+    box-sizing: border-box;
+  }
+  .db-header-title  { font-size: 24px; }
+  .db-header-count  { font-size: 15px; }
+
+  .db-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 20px;
+    gap: 0;
+  }
+  .db-card:hover    { transform: none; }
+  .db-card-actions  { display: none; }
+  .db-btn-view-cert { display: block; }
+}
