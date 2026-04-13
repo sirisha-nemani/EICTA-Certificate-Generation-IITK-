@@ -113,14 +113,11 @@ export default function FAQ() {
                         style={{ transition: 'transform 0.3s ease, color 0.2s ease',  // Smooth rotation and color transition
                                  transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)', // Flips the chevron upward when open
                                  color: isOpen ? '#3B5BDB' : '#6c757d',                // Blue when open, grey when closed
-                                 display: 'flex', alignItems: 'center', flexShrink: 0 }}>  // Flex centering, won't shrink
+                                 display: 'flex', alignItems: 'center', flexShrink: 0 }}>
 
-                    {/* Inline SVG chevron icon — a downward-pointing V shape */}
-                    {/* When the parent span rotates 180deg, this appears to point upward */}
-                    <svg width="20" height="20" fill="none" stroke="currentColor"
-                         strokeWidth="2.2" viewBox="0 0 24 24">
-                      {/* The V-shaped chevron polyline */}
-                      <polyline points="6 9 12 15 18 9" />
+                    {/* Simple filled downward arrow triangle */}
+                    <svg width="12" height="12" viewBox="0 0 12 12">
+                      <path d="M6 9L1 3h10z" fill="currentColor" />
                     </svg>
                   </span>
                 </button>

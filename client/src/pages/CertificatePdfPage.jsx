@@ -4,10 +4,10 @@
 // Route: /certificate/pdf/:id
 //
 // A clean, distraction-free PDF-only viewer page.
-// Renders: dark top bar (Back + Download) + the PDF iframe.
-// No zoom controls, no sidebar — just the certificate PDF.
+// Renders: dark top bar (Back to Dashboard + Zoom Controls) + the PDF iframe.
+// No download button here — download lives solely on the PDF detail page.
 //
-// Used when the user clicks "Download" on the certificate detail page.
+// Used when the user clicks "Preview" on the dashboard credential card.
 // ─────────────────────────────────────────────────────────────────────────────
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate, useParams }       from 'react-router-dom'
@@ -27,14 +27,36 @@ const ArrowLeftIcon = () => (
   </svg>
 )
 
-const DownloadIcon = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+const ZoomOutIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
     stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="7 10 12 15 17 10" />
-    <line x1="12" y1="15" x2="12" y2="3" />
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    <line x1="8"  y1="11" x2="14"   y2="11" />
   </svg>
 )
+
+const ZoomInIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    <line x1="11" y1="8"  x2="11"   y2="14" />
+    <line x1="8"  y1="11" x2="14"   y2="11" />
+  </svg>
+)
+
+const ResetIcon = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="1 4 1 10 7 10" />
+    <path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
+  </svg>
+)
+
+// Discrete zoom steps; default is 1.00 (100%)
+const ZOOM_STEPS   = [0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00]
+const DEFAULT_ZOOM = 1.00
 
 // ─────────────────────────────────────────────────────────────
 // CertificatePdfPage
@@ -47,10 +69,10 @@ export default function CertificatePdfPage() {
   const credential = getCredentialByIndex(id)
 
   // QR code data URL — undefined while generating, null on failure, string when ready
-  const [qrDataUrl,  setQrDataUrl]  = useState(undefined)
+  const [qrDataUrl, setQrDataUrl] = useState(undefined)
 
-  // Blob URL of the rendered PDF — used for the Download action
-  const [pdfBlobUrl, setPdfBlobUrl] = useState(null)
+  // Zoom state — starts at 100%
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM)
 
   // Public verification URL encoded into the certificate QR code
   const verifyUrl = `https://portal.eicta.iitk.ac.in/verify/${credential.id}`
@@ -75,62 +97,101 @@ export default function CertificatePdfPage() {
     qrDataUrl,
   }), [credential, qrDataUrl])
 
-  // Download: trigger an anchor-click on the ready blob URL
-  const handleDownload = () => {
-    if (!pdfBlobUrl) return
-    const a      = document.createElement('a')
-    a.href       = pdfBlobUrl
-    a.download   = `EICTA-Certificate-${credential.certificateId}.pdf`
-    a.click()
-  }
+  // ── Zoom helpers ──────────────────────────────────────────────
+  const zoomIdx   = ZOOM_STEPS.findIndex(z => Math.abs(z - zoom) < 0.01)
+  const canZoomOut = zoomIdx > 0
+  const canZoomIn  = zoomIdx < ZOOM_STEPS.length - 1
+
+  const doZoomOut = () => canZoomOut && setZoom(ZOOM_STEPS[zoomIdx - 1])
+  const doZoomIn  = () => canZoomIn  && setZoom(ZOOM_STEPS[zoomIdx + 1])
+  const doReset   = () => setZoom(DEFAULT_ZOOM)
 
   return (
     <div className="cpdf-page">
 
       {/* ── Top bar ───────────────────────────────────────────── */}
       <header className="cpdf-topbar">
+
+        {/* Left — back to dashboard */}
         <button
           className="cpdf-back-btn"
-          onClick={() => navigate(`/certificate/${id}`)}
-          aria-label="Back to Certificate"
+          onClick={() => navigate('/dashboard')}
+          aria-label="Back to Dashboard"
         >
           <ArrowLeftIcon />
-          <span>Back</span>
+          <span>Back to Dashboard</span>
         </button>
 
-        <span className="cpdf-title">Certificate PDF</span>
+        <span className="cpdf-title">Certificate Preview</span>
 
-        <button
-          className="cpdf-download-btn"
-          onClick={handleDownload}
-          disabled={!pdfBlobUrl}
-          title={pdfBlobUrl ? 'Download PDF' : 'Generating PDF…'}
-        >
-          <DownloadIcon />
-          <span>{pdfBlobUrl ? 'Download PDF' : 'Generating…'}</span>
-        </button>
+        {/* Right — zoom controls */}
+        <div className="cpdf-zoom-bar">
+          <button
+            className="cpdf-zoom-btn"
+            onClick={doZoomOut}
+            disabled={!canZoomOut}
+            title="Zoom Out"
+            aria-label="Zoom Out"
+          >
+            <ZoomOutIcon />
+            <span>Zoom Out</span>
+          </button>
+
+          <span className="cpdf-zoom-level" aria-live="polite">
+            {Math.round(zoom * 100)}%
+          </span>
+
+          <button
+            className="cpdf-zoom-btn"
+            onClick={doReset}
+            title="Reset zoom to 100%"
+            aria-label="Reset zoom"
+          >
+            <ResetIcon />
+            <span>Reset</span>
+          </button>
+
+          <button
+            className="cpdf-zoom-btn"
+            onClick={doZoomIn}
+            disabled={!canZoomIn}
+            title="Zoom In"
+            aria-label="Zoom In"
+          >
+            <ZoomInIcon />
+            <span>Zoom In</span>
+          </button>
+        </div>
+
       </header>
 
       {/* ── PDF viewer area ───────────────────────────────────── */}
       <div className="cpdf-viewer-area">
         {/*
-          Wait until QR is resolved (not undefined) before mounting CertificateViewer.
-          This ensures the PDF is generated exactly once — with the QR code already in place.
+          CSS zoom applied to the content wrapper — this scales the entire
+          viewer (including the iframe) proportionally and affects layout
+          so the scroll-box sizes correctly at every zoom level.
         */}
-        {qrDataUrl !== undefined ? (
-          <CertificateViewer
-            docProps={docProps}
-            onBlobReady={setPdfBlobUrl}
-          />
-        ) : (
-          /* QR still generating — show the same loading UI that CertificateViewer would show */
-          <div className="cdp-viewer-wrap">
-            <div className="cdp-viewer-loading">
-              <div className="cdp-spinner" />
-              <span>Preparing certificate…</span>
+        <div style={{ zoom: zoom, flexShrink: 0, width: '100%', maxWidth: 920 }}>
+          {/*
+            Wait until QR is resolved (not undefined) before mounting CertificateViewer.
+            This ensures the PDF is generated exactly once — with the QR code already in place.
+          */}
+          {qrDataUrl !== undefined ? (
+            <CertificateViewer
+              docProps={docProps}
+              onBlobReady={() => {}}
+            />
+          ) : (
+            /* QR still generating — show the same loading UI that CertificateViewer would show */
+            <div className="cdp-viewer-wrap">
+              <div className="cdp-viewer-loading">
+                <div className="cdp-spinner" />
+                <span>Preparing certificate…</span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
     </div>

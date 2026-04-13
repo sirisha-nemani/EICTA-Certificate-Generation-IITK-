@@ -14,15 +14,16 @@
 //   MOBILE (<768 px):   top bar + Email button + stacked sections
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect } from 'react'
 import { useNavigate, useParams }                            from 'react-router-dom'
 import QRCode                                                from 'qrcode'
+import { pdf }                                               from '@react-pdf/renderer'
 
 import { useAuth }            from '../context/AuthContext'
 import { getCredentialByIndex } from '../data/mockCredentials'
 
 import CertificateView    from '../components/certificate/CertificateView'
-import PreviewControls    from '../components/certificate/PreviewControls'
+import CertificateDocument from '../components/certificate/CertificateDocument'
 import CertificateSidebar from '../components/certificate/CertificateSidebar'
 import CredentialDetails  from '../components/certificate/CredentialDetails'
 import EmailModal         from '../components/certificate/EmailModal'
@@ -92,11 +93,16 @@ export default function CertificatePage() {
   const credential = getCredentialByIndex(id)
 
   // ── State ─────────────────────────────────────────────────────
-  // zoom: current preview scale factor (steps through ZOOM_STEPS in PreviewControls)
-  const [zoom,           setZoom]           = useState(0.75)
+  // zoom is computed dynamically from container width so the certificate
+  // always fits without any horizontal scrolling on any screen size.
+  // Starts at 0.75 (a safe default before the ResizeObserver fires).
+  const [zoom, setZoom] = useState(0.75)
 
   // showEmailModal: toggles the EmailModal overlay
   const [showEmailModal, setShowEmailModal] = useState(false)
+
+  // downloadLoading: true while PDF is being generated for direct download
+  const [downloadLoading, setDownloadLoading] = useState(false)
 
   // isFullscreen: mirrors document.fullscreenElement so the button icon updates live
   const [isFullscreen,   setIsFullscreen]   = useState(false)
@@ -108,10 +114,13 @@ export default function CertificatePage() {
   // viewerWrapRef: attached to the HTML preview container for Fullscreen API
   const viewerWrapRef = useRef(null)
 
+  // scrollRef: attached to the inner scroll container to measure available width
+  const scrollRef = useRef(null)
+
   // ── Derived values ────────────────────────────────────────────
   const verifyUrl = `https://portal.eicta.iitk.ac.in/verify/${credential.id}`
 
-  // Scaled pixel dimensions for the zoom scroll-box
+  // Scaled pixel dimensions for the scroll-box — derived from the responsive zoom
   const scaledW = Math.round(zoom * CERT_W)
   const scaledH = Math.round(zoom * CERT_H)
 
@@ -122,6 +131,29 @@ export default function CertificatePage() {
       .then(url => setQrDataUrl(url))
       .catch(()  => setQrDataUrl(null))
   }, [verifyUrl])
+
+  // ── Responsive zoom — fits certificate to available container width ───────
+  // Uses ResizeObserver so the scale updates whenever the container resizes
+  // (window resize, sidebar toggle, orientation change, etc.).
+  // Caps at 0.75 on large screens; scales down to fill narrower containers.
+  useLayoutEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    const compute = () => {
+      const style     = window.getComputedStyle(el)
+      const paddingH  = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
+      const available = el.clientWidth - paddingH
+      if (available > 0) {
+        setZoom(Math.min(0.75, available / CERT_W))
+      }
+    }
+
+    compute()                          // run immediately after first render
+    const ro = new ResizeObserver(compute)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
 
   // ── docProps for EmailModal → CertificateDocument ────────────
   // Memoised so the PDF is not regenerated on unrelated parent re-renders.
@@ -173,8 +205,26 @@ export default function CertificatePage() {
   }, [handleFullScreen])
 
   // ── Actions ───────────────────────────────────────────────────
-  // "Download" routes to the clean PDF page instead of directly downloading
-  const handleDownload = () => navigate(`/certificate/pdf/${id}`)
+  // "Download" — generates the PDF in-browser and triggers a file save
+  const handleDownload = useCallback(async () => {
+    if (downloadLoading) return
+    setDownloadLoading(true)
+    try {
+      const blob = await pdf(<CertificateDocument {...docProps} />).toBlob()
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement('a')
+      a.href     = url
+      a.download = `EICTA-Certificate-${credential.certificateId}.pdf`
+      document.body.appendChild(a)
+      a.click()
+      document.body.removeChild(a)
+      setTimeout(() => URL.revokeObjectURL(url), 2000)
+    } catch (err) {
+      console.error('[CertificatePage] Download failed:', err)
+    } finally {
+      setDownloadLoading(false)
+    }
+  }, [downloadLoading, docProps, credential.certificateId])
 
   // ── Render ────────────────────────────────────────────────────
   return (
@@ -195,35 +245,8 @@ export default function CertificatePage() {
           <span>Back to Dashboard</span>
         </button>
 
-        {/* Desktop action buttons */}
-        <div className="cdp-topbar-actions">
-          <button
-            className="cdp-action-btn"
-            onClick={handleDownload}
-            title="Download certificate PDF"
-          >
-            <DownloadIcon />
-            Download
-          </button>
-
-          <button
-            className="cdp-action-btn"
-            onClick={handleFullScreen}
-            title={`${isFullscreen ? 'Exit' : 'Enter'} fullscreen (F)`}
-          >
-            {isFullscreen ? <ShrinkIcon /> : <ExpandIcon />}
-            {isFullscreen ? 'Exit' : 'Full Screen'}
-          </button>
-
-          <button
-            className="cdp-action-btn"
-            onClick={() => setShowEmailModal(true)}
-            title="Email certificate"
-          >
-            <EmailIcon />
-            Email
-          </button>
-        </div>
+        {/* Right spacer — keeps the title visually centred */}
+        <div className="cdp-topbar-spacer" />
       </header>
       {/* ══ END TOP BAR ══ */}
 
@@ -232,16 +255,6 @@ export default function CertificatePage() {
       ═══════════════════════════════════════════════════════════ */}
       <div className="cdp-content">
 
-        {/* Mobile-only "Email Certificate" button — hidden on desktop */}
-        <button
-          className="cdp-mobile-email-btn"
-          onClick={() => setShowEmailModal(true)}
-          aria-label="Email Certificate"
-        >
-          <EmailIcon />
-          Email Certificate
-        </button>
-
         {/* ── Two-column main row ─────────────────────────────── */}
         <div className="cdp-main-row">
 
@@ -249,10 +262,42 @@ export default function CertificatePage() {
           <div className="cdp-left">
             <div className="cdp-cert-card">
 
-              {/* Card header: title (left) + zoom controls (right) */}
+              {/* Card header: title (left) + action buttons (right) */}
               <div className="cdp-cert-card-header">
                 <h2 className="cdp-cert-card-title">Certificate</h2>
-                <PreviewControls zoom={zoom} onZoom={setZoom} />
+
+                {/* Action buttons — Download & Full Screen hidden on mobile */}
+                <div className="cdp-cert-header-actions">
+                  {/* Download — visible on BOTH desktop and mobile */}
+                  <button
+                    className="cdp-cert-header-btn"
+                    onClick={handleDownload}
+                    disabled={downloadLoading}
+                    title="Download certificate PDF"
+                  >
+                    <DownloadIcon />
+                    {downloadLoading ? 'Generating…' : 'Download'}
+                  </button>
+
+                  <button
+                    className="cdp-cert-header-btn cdp-desktop-action"
+                    onClick={handleFullScreen}
+                    title={`${isFullscreen ? 'Exit' : 'Enter'} fullscreen (F)`}
+                  >
+                    {isFullscreen ? <ShrinkIcon /> : <ExpandIcon />}
+                    {isFullscreen ? 'Exit Full Screen' : 'Full Screen'}
+                  </button>
+
+                  {/* Email Certificate — shown on both desktop AND mobile */}
+                  <button
+                    className="cdp-cert-header-btn"
+                    onClick={() => setShowEmailModal(true)}
+                    title="Email certificate"
+                  >
+                    <EmailIcon />
+                    Email Certificate
+                  </button>
+                </div>
               </div>
 
               {/*
@@ -263,7 +308,7 @@ export default function CertificatePage() {
                 applies the CSS transform (which doesn't affect layout by itself).
               */}
               <div className="cdp-html-viewer-wrap" ref={viewerWrapRef}>
-                <div className="cdp-preview-scroll">
+                <div className="cdp-preview-scroll" ref={scrollRef}>
                   {/* Scroll-box sizing: zoom × natural cert size */}
                   <div style={{ width: scaledW, height: scaledH, position: 'relative', flexShrink: 0 }}>
                     {/* Visual transform: scale from top-left origin */}

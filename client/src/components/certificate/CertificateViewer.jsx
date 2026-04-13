@@ -95,9 +95,10 @@ export default function CertificateViewer({ docProps, onBlobReady, viewerWrapRef
       )}
 
       {/* PDF iframe — shown once the blob URL is ready */}
+      {/* #toolbar=0 hides the browser's built-in PDF toolbar (download/print/drive icons) */}
       {!loading && !error && blobUrl && (
         <iframe
-          src={blobUrl}
+          src={`${blobUrl}#toolbar=0`}
           className="cdp-viewer-frame"
           title="Certificate Preview"
         />

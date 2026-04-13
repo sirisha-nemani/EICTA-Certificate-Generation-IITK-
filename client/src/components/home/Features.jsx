@@ -99,17 +99,13 @@ export default function Features() {
             // "hp-feature-card" — CSS class for card background, border-radius, padding, and shadow
             <div key={f.title} className="hp-feature-card">
 
-              {/* Icon wrapper — the colored circle/square behind the icon */}
-              {/* Template literal dynamically adds the variant class (e.g. "hp-feature-icon-wrap purple") */}
-              {/* f.variant is 'purple', 'teal', or 'blue' — controls the background color */}
-              <div className={`hp-feature-icon-wrap ${f.variant}`}>
-                {/* Render the SVG icon stored in f.icon */}
-                {f.icon}
+              {/* Icon + title row — sits side by side on mobile, stacked on desktop */}
+              <div className="hp-feature-header">
+                <div className={`hp-feature-icon-wrap ${f.variant}`}>
+                  {f.icon}
+                </div>
+                <h3 className="hp-feature-title">{f.title}</h3>
               </div>
-
-              {/* Card title — the feature name (e.g. "Secure Authentication") */}
-              {/* "hp-feature-title" — CSS class for font weight and margin */}
-              <h3 className="hp-feature-title">{f.title}</h3>
 
               {/* Card description paragraph — the explanation text below the title */}
               {/* "hp-feature-desc" — CSS class for muted color, font size, and line height */}

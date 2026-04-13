@@ -47,9 +47,16 @@ exports.requestOTP = async (req, res) => {
       return res.status(400).json({ message: 'A valid email address is required' })
     }
 
-    // Auto-register the email if it doesn't exist yet — everyone can log in
-    // This creates a new user row automatically if the email has never been seen before
-    const user = await User.findOrCreate(email)
+    // Look up the email in the database — only pre-registered emails are allowed
+    const user = await User.findByEmail(email)
+
+    // If the email is not in the database, reject the request
+    // This ensures only participants added by an administrator can log in
+    if (!user) {
+      return res.status(403).json({
+        message: 'This email is not registered. Please contact your administrator.',
+      })
+    }
 
     // Generate a fresh 6-digit OTP code for this login attempt
     const otp    = generateOTP()

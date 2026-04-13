@@ -25,6 +25,13 @@ client/build/
 certificate.pdf
 *.generated.pdf
 
+# ── Documentation / generated guides ──────────
+EICTA_Developer_Guidebook.pdf
+EICTA_CEO_Demo_Document.pdf
+generate_guidebook.py
+generate_pdf.py
+generate_ceo_demo.py
+
 # ── Logs ──────────────────────────────────────
 logs/
 *.log

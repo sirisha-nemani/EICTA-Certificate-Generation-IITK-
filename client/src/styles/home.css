@@ -732,6 +732,22 @@
   .hp-features-grid,
   .hp-how-grid { grid-template-columns: 1fr; gap: 16px; }
 
+  /* Feature card — icon and title side by side on mobile */
+  .hp-feature-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .hp-feature-icon-wrap {
+    margin-bottom: 0;   /* remove the desktop bottom margin inside the row */
+    flex-shrink: 0;
+  }
+  .hp-feature-title {
+    margin-bottom: 0;   /* title sits vertically centred next to the icon */
+  }
+
   /* Hide dashed connector on mobile */
   .hp-how-connector { display: none; }
 

@@ -2,26 +2,31 @@
 const nodemailer = require('nodemailer')
 
 // Create a reusable "transporter" object that holds the SMTP connection settings
-// All emails sent by this application will go through this transporter
+// pool: false ensures a fresh SMTP connection per delivery — prevents emails being batched
 const transporter = nodemailer.createTransport({
-  // The hostname of the SMTP server to connect to — defaults to Gmail's SMTP server
   host:   process.env.EMAIL_HOST || 'smtp.gmail.com',
-
-  // The port number to use when connecting to the SMTP server — 587 is the standard for STARTTLS
   port:   parseInt(process.env.EMAIL_PORT) || 587,
-
-  // Use 'false' here because port 587 uses STARTTLS (upgrades to encrypted after connecting),
-  // not SSL from the start (which would require 'true' and port 465)
-  secure: false,
-
-  // Authentication credentials for the email account that will send the messages
+  secure: false,   // port 587 uses STARTTLS, not SSL from the start
+  pool:   false,   // IMPORTANT: no connection pooling — every send is its own connection
   auth: {
-    // The email address / username used to log in to the SMTP server
     user: process.env.EMAIL_USER,
-    // The password (or app-specific password for Gmail) used to authenticate
     pass: process.env.EMAIL_PASS,
   },
 })
+
+// ── Serial email queue ────────────────────────────────────────
+// Guarantees emails are dispatched strictly one at a time,
+// even when multiple API requests arrive at the server simultaneously.
+let emailQueue = Promise.resolve()
+
+function enqueueEmail(fn) {
+  // Chain the new task onto the end of the queue.
+  const next = emailQueue.then(() => fn()).catch((err) => { throw err })
+  // Advance the shared queue pointer; catch silently so the queue never
+  // itself becomes a rejected promise that blocks future sends.
+  emailQueue = next.catch(() => {})
+  return next
+}
 
 // sendPasswordResetEmail: sends a branded HTML email containing a password reset button
 // Parameters:
@@ -74,8 +79,8 @@ async function sendPasswordResetEmail(toEmail, resetUrl, userName) {
 //   otpCode  — the 6-digit OTP code to display in the email
 //   userName — the user's display name, used to personalise the greeting
 async function sendOTPEmail(toEmail, otpCode, userName) {
-  // Use the transporter to send the email — await ensures we wait for it to complete
-  await transporter.sendMail({
+  // Route through the serial queue — OTP emails are sent one at a time
+  await enqueueEmail(() => transporter.sendMail({
     // The "From" address shown in the recipient's email client — branded as the IFACET portal
     from:    `"IFACET – Digital Credentials Portal" <${process.env.EMAIL_USER}>`,
 
@@ -131,7 +136,7 @@ async function sendOTPEmail(toEmail, otpCode, userName) {
         </div>
       </div>
     `,
-  })
+  }))   // closes enqueueEmail(() => transporter.sendMail({...}))
 }
 
 // ── Certificate Email ─────────────────────────────────────────
@@ -143,7 +148,8 @@ async function sendOTPEmail(toEmail, otpCode, userName) {
 //   courseName    — shown in subject line and body
 //   certificateId — used as the attachment filename
 async function sendCertificateEmail({ toEmail, pdfBase64, studentName, courseName, certificateId }) {
-  await transporter.sendMail({
+  // Route through the serial queue — certificate emails are sent one at a time
+  await enqueueEmail(() => transporter.sendMail({
     from:    `"E&ICT Academy – Digital Credentials" <${process.env.EMAIL_USER}>`,
     to:      toEmail,
     subject: `Your EICTA Certificate — ${courseName}`,
@@ -181,7 +187,7 @@ async function sendCertificateEmail({ toEmail, pdfBase64, studentName, courseNam
         contentType: 'application/pdf',
       },
     ],
-  })
+  }))   // closes enqueueEmail(() => transporter.sendMail({...}))
 }
 
 // Export all email functions so they can be imported where needed

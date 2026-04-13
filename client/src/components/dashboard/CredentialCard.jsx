@@ -115,9 +115,9 @@ export default function CredentialCard({ credential, index }) {
       </div>
 
       {/* ── Mobile: single full-width button ── */}
-      {/* A single "View Certificate" button shown only on mobile screens (hidden on desktop via CSS).
-          It performs the same action as the desktop "Preview" button. */}
-      <button className="db-btn-view-cert" onClick={handlePreview}>
+      {/* Routes to the PDF page (/certificate/:id) which shows the certificate
+          with Download, Full Screen, and Email Certificate options. */}
+      <button className="db-btn-view-cert" onClick={handlePDF}>
         View Certificate
       </button>
 

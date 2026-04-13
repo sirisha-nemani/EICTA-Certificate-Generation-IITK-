@@ -557,6 +557,45 @@
   user-select: none;
 }
 
+/* ── Card header action buttons ────────────────────────────── */
+.cdp-cert-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.cdp-cert-header-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1.5px solid #DEE2E6;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #495057;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.cdp-cert-header-btn:hover:not(:disabled) {
+  background: #EDF2FF;
+  border-color: #3B5BDB;
+  color: #3B5BDB;
+}
+.cdp-cert-header-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Topbar spacer — balances the centred title when there are no right-side buttons */
+.cdp-topbar-spacer {
+  flex: 0 0 160px;   /* approximate width of the back button */
+}
+
 /* ── Responsive ────────────────────────────────────────────── */
 @media (max-width: 1023px) {
   .cdp-right   { width: 280px; }
@@ -567,21 +606,22 @@
 @media (max-width: 767px) {
   /* Top bar */
   .cdp-topbar         { padding: 0 16px; height: 52px; }
-  .cdp-topbar-actions { display: none; }        /* Desktop actions hidden */
   .cdp-back-btn span  { font-size: 13px; }
+  .cdp-topbar-spacer  { display: none; }   /* no spacer needed on mobile */
 
-  /* Collapse PreviewControls text labels on mobile — icons only */
-  .pc-btn span { display: none; }
-  .pc-btn      { padding: 6px 8px; }
+  /* Card header — hide Download and Full Screen; Email Certificate stays visible */
+  .cdp-desktop-action { display: none; }
+
+  /* Hide the "Certificate" heading on mobile — only the Email Certificate button shows */
+  .cdp-cert-card-title  { display: none; }
+  /* Right-align the action buttons now that the title is gone */
+  .cdp-cert-card-header { justify-content: flex-end; }
 
   /* Reduce preview padding on mobile */
   .cdp-preview-scroll { padding: 16px; min-height: 280px; }
 
   /* Content */
   .cdp-content { padding: 16px 16px 32px; }
-
-  /* Mobile email button visible */
-  .cdp-mobile-email-btn { display: flex; }
 
   /* Stack vertically */
   .cdp-main-row {

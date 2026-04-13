@@ -57,25 +57,56 @@
   text-transform: uppercase;
 }
 
-/* Download button */
-.cpdf-download-btn {
+/* ── Zoom control bar (top-right) ───────────────────────────── */
+.cpdf-zoom-bar {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 16px;
-  background: #3B5BDB;
-  color: #ffffff;
-  border: none;
+  gap: 4px;
+  background: #1a1a1a;
+  border: 1px solid #3a3a3a;
   border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 4px 6px;
+}
+
+/* Individual zoom button */
+.cpdf-zoom-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: transparent;
+  color: #CED4DA;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: background 0.15s, opacity 0.15s;
+  transition: background 0.15s, color 0.15s;
   white-space: nowrap;
 }
-.cpdf-download-btn:hover:not(:disabled) { background: #3451C7; }
-.cpdf-download-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.cpdf-zoom-btn:hover:not(:disabled) {
+  background: #333333;
+  color: #ffffff;
+}
+.cpdf-zoom-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Current zoom percentage badge */
+.cpdf-zoom-level {
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  min-width: 38px;
+  text-align: center;
+  padding: 0 6px;
+  border-left: 1px solid #3a3a3a;
+  border-right: 1px solid #3a3a3a;
+  margin: 0 2px;
+  line-height: 1;
+}
 
 /* ── PDF viewer area ────────────────────────────────────────── */
 .cpdf-viewer-area {
@@ -85,6 +116,8 @@
   justify-content: center;
   padding: 36px 24px;
   overflow: auto;
+  /* Allow content to overflow when zoomed in */
+  min-width: 0;
 }
 
 /* Scope cdp-viewer-wrap inside the PDF page so it looks right on dark bg */
@@ -114,7 +147,10 @@
 
 /* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  .cpdf-topbar { padding: 0 16px; height: 52px; }
-  .cpdf-title  { display: none; }
-  .cpdf-viewer-area { padding: 16px 12px; }
+  .cpdf-topbar       { padding: 0 16px; height: 52px; }
+  .cpdf-title        { display: none; }
+  .cpdf-viewer-area  { padding: 16px 12px; }
+  /* Hide text labels on zoom buttons — icons only on mobile */
+  .cpdf-zoom-btn span { display: none; }
+  .cpdf-zoom-btn      { padding: 5px 8px; }
 }
